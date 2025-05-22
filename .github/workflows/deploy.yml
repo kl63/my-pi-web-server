@@ -2,30 +2,29 @@ name: 🚀 Deploy to Raspberry Pi
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: 📥 Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up SSH key
+      - name: 🔐 Set up SSH key
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.PI_SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H 192.168.1.210 >> ~/.ssh/known_hosts
 
-      - name: Deploy to Raspberry Pi
+      - name: 🚀 Deploy to Pi
         run: |
-          ssh -i ~/.ssh/id_ed25519 kevinlin192003@192.168.1.210 '
+          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no kevinlin192003@192.168.1.210 '
             cd /home/kevinlin192003/Summer25Projects/my-web-server &&
             git pull origin main &&
             npm install &&
             npm run build &&
-            pm2 restart next-app || (npm run start &) 
+            pm2 restart next-app || (npm run start &)
           '
