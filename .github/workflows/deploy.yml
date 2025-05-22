@@ -12,19 +12,20 @@ jobs:
       - name: 📥 Checkout code
         uses: actions/checkout@v3
 
-      - name: 🔐 Set up SSH key
+      - name: 🔐 Set up SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.PI_SSH_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan -H 192.168.1.210 >> ~/.ssh/known_hosts
 
-      - name: 🚀 Deploy to Pi
+      - name: 🔍 Debug SSH key
         run: |
-          ssh -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no kevinlin192003@192.168.1.210 '
-            cd /home/kevinlin192003/Summer25Projects/my-web-server &&
-            git pull origin main &&
-            npm install &&
-            npm run build &&
-            pm2 restart next-app || (npm run start &)
-          '
+          echo "Key preview:"
+          head -n 3 ~/.ssh/id_ed25519
+          echo "Key permissions:"
+          ls -l ~/.ssh/id_ed25519
+
+      - name: 🚀 Test SSH connection
+        run: |
+          ssh -v -i ~/.ssh/id_ed25519 -o StrictHostKeyChecking=no kevinlin192003@192.168.1.210 "echo 'SSH connected!'"
